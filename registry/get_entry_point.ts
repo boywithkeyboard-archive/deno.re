@@ -19,6 +19,7 @@ export function getEntryPoint(fileMap: Record<string, string>, path: string): st
   ]
 
   for (const entryPoint of validEntryPoints) {
+    console.log(path + entryPoint)
     if (fileMap[path + entryPoint]) {
       return path + entryPoint
     }
