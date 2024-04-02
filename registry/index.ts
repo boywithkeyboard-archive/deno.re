@@ -1,9 +1,11 @@
 import fastify, { type FastifyReply } from 'fastify'
 import { filePathToContentType } from './content_type'
 import { getFileMap } from './file_map'
+import { getEntryPoint } from './get_entry_point'
 import { getLatestTag } from './get_latest_tag'
 import { hash } from './hash'
 import { resolveTypeHeader } from './resolve_type_header'
+import { validExt } from './valid_ext'
 
 const app = fastify()
 
@@ -70,8 +72,19 @@ app.setNotFoundHandler(async (req, res) => {
     }
 
     const path = '/' + url.split('/').slice(3).join('/')
+    const previousEtag = req.headers['if-none-match']
 
-    let content = fileMap[path]
+    const entryPoint = validExt(path)
+      ? getEntryPoint(fileMap, path)
+      : path
+
+    if (!entryPoint) {
+      return respondWith(res, 404, 'FILE NOT FOUND', {
+        'Cache-Control': 'max-age=0'
+      })
+    }
+
+    let content = fileMap[entryPoint]
 
     if (!content) {
       return respondWith(res, 404, 'FILE NOT FOUND', {
@@ -79,13 +92,15 @@ app.setNotFoundHandler(async (req, res) => {
       })
     }
 
-    content = Buffer.from(content, 'base64').toString('utf-8')
+    if (validExt(path)) {
+      content = Buffer.from(content, 'base64').toString('utf-8')
+    } else {
+      content = `export * from "https://deno.re${entryPoint}";`
+    }
 
-    const contentType = filePathToContentType(url)
+    const contentType = filePathToContentType(entryPoint)
     const checksum = `"${hash(content)}"`
-    const typeHeader = resolveTypeHeader(fileMap, path)
-
-    const previousEtag = req.headers['if-none-match']
+    const typeHeader = resolveTypeHeader(fileMap, entryPoint)
 
     if (previousEtag === checksum) {
       return respondWith(res, 304, null, {
