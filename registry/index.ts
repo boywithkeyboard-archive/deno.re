@@ -98,7 +98,7 @@ app.setNotFoundHandler(async (req, res) => {
       content = Buffer.from(content, 'base64').toString('utf-8')
     } else {
       contentType = filePathToContentType('.ts')
-      content = `export * from "https://deno.re/${user}/${repo}@${tag}/${entryPoint}";`
+      content = `export * from 'https://deno.re/${user}/${repo}@${tag}${entryPoint}'`
     }
 
     const checksum = `"${hash(content)}"`
