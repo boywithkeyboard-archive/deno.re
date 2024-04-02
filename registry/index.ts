@@ -6,8 +6,24 @@ import { getLatestTag } from './get_latest_tag'
 import { hash } from './hash'
 import { resolveTypeHeader } from './resolve_type_header'
 import { validExt } from './valid_ext'
+import html from '../build/index.html'
+import favicon from '../build/favicon.svg'
 
 const app = fastify()
+
+app.get('/', (_, res) => {
+  res.header('Cache-Control', 's-max-age=1800, max-age=300')
+  res.header('Content-Type', 'text/html; charset=utf-8')
+
+  return html
+})
+
+app.get('/favicon.svg', (_, res) => {
+  res.header('Cache-Control', 's-max-age=86400, max-age=3600')
+  res.header('Content-Type', 'image/svg+xml; charset=utf-8')
+
+  return favicon
+})
 
 app.get('/ready', () => 'READY')
 

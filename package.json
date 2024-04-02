@@ -3,10 +3,7 @@
   "scripts": {
     "dev": "astro dev",
     "start": "node build/index.cjs",
-    "build:frontend": "astro check && astro build",
-    "build": "esbuild registry/index.ts --bundle --format=cjs --platform=node --outfile=build/index.cjs",
-    "preview": "astro preview",
-    "astro": "astro"
+    "build": "astro build && esbuild registry/index.ts --bundle --format=cjs --loader:.html=text --loader:.svg=text --external:esbuild --platform=node --outfile=build/index.cjs"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.540.0",

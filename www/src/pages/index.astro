@@ -1,0 +1,63 @@
+---
+import Layout from '../layouts/Layout.astro'
+import Logo from '../components/Logo.astro'
+import Footer from '../components/Footer.astro'
+---
+
+<Layout title="The Deno Registry">
+	<div class="page">
+		<Logo />
+
+		<div class="readme">
+			<p>deno.re is a service which distributes Deno modules from GitHub repositories. Take this one, for example:</p>
+
+			<pre><code>import &lcub; <b>bytes</b> &rcub; from "<b>https://deno.re/boywithkeyboard/bytes@v5.0.0</b>"</code></pre>
+
+			<p>In contrast to deno.land/x, deno.re is not a stand-alone module registry, but instead leverages existing infrastructure and stores modules permanently.</p>
+
+			<p>You can import specific commits based on their SHA1 checksum, minify files on the fly or omit the entry point and let deno.re automatically find it for you.</p>
+		</div>
+
+		<Footer />
+	</div>
+</Layout>
+
+<style>
+	.page {
+		height: 100%;
+		width: 100%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		flex-direction: column;
+	}
+
+	.readme {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		flex-direction: column;
+		margin: 100px 0 50px 0;
+	}
+
+	.readme p {
+		font-size: 18px;
+		line-height: 1.5;
+		color: var(--textLight);
+		width: 700px;
+	}
+
+	.readme pre {
+		text-align: center;
+		font-size: 16px;
+		background: var(--bgDarker);
+		color: var(--textLighter);
+		padding: 15px;
+		border-radius: 10px;
+		margin: 30px 0;
+	}
+
+	.readme pre b {
+		color: var(--text);
+	}
+</style>
