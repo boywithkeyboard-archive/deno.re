@@ -34,7 +34,7 @@ app.setNotFoundHandler(async (req, res) => {
     const url = req.url
 
     if (
-      /^\/([a-zA-Z0-9\-]+)\/([a-zA-Z0-9._\-]+)@(\^|~)?([a-zA-Z0-9.*]+)(\/([a-zA-Z0-9._\-]+))+\.(js|json|mjs|ts)$/.test(url) === false
+      /^\/([a-zA-Z0-9\-]+)\/([a-zA-Z0-9._\-]+)(@[a-zA-Z0-9.*]+)?(\/|((\/([a-zA-Z0-9._\-]+))+\.(js|json|mjs|ts)))?(\/)?$/.test(url) === false
     ) {
       return respondWith(res, 404, 'BAD URL', {
         'Cache-Control': 'max-age=0'
