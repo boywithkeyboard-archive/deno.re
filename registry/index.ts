@@ -92,13 +92,15 @@ app.setNotFoundHandler(async (req, res) => {
       })
     }
 
+    let contentType = filePathToContentType(entryPoint)
+  
     if (validExt(path)) {
       content = Buffer.from(content, 'base64').toString('utf-8')
     } else {
-      content = `export * from "https://deno.re${entryPoint}";`
+      contentType = filePathToContentType('.ts')
+      content = `export * from "https://deno.re/${user}/${repo}@${tag}/${entryPoint}";`
     }
 
-    const contentType = filePathToContentType(entryPoint)
     const checksum = `"${hash(content)}"`
     const typeHeader = resolveTypeHeader(fileMap, entryPoint)
 
