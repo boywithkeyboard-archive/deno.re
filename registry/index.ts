@@ -75,7 +75,7 @@ app.setNotFoundHandler(async (req, res) => {
     const previousEtag = req.headers['if-none-match']
 
     // list child items
-    if (path.endsWith('/')) {
+    if (path !== '/' && path.endsWith('/')) {
       const items: Record<string, {
         checksum: string
         content_type: string
