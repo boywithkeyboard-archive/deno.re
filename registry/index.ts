@@ -66,7 +66,7 @@ app.setNotFoundHandler(async (req, res) => {
     const fileMap = await getFileMap(user, repo, tag)
 
     if (!fileMap) {
-      return respondWith(res, 500, 'GITHUB IS UNAVAILABLE', {
+      return respondWith(res, 500, 'REPOSITORY OR TAG NOT FOUND', {
         'Cache-Control': 's-max-age=60, max-age=0'
       })
     }
@@ -74,45 +74,12 @@ app.setNotFoundHandler(async (req, res) => {
     let path = '/' + url.split('/').slice(3).join('/')
     const previousEtag = req.headers['if-none-match']
 
-    console.log('path: ' + path)
-
-    // list files
-    if (/.+\/$/.test(path)) {
-      const items: Record<string, {
-        checksum: string
-        content_type: string
-        size: number
-      }> = {}
-
-      for (const [key, value] of Object.entries(fileMap)) {
-        if (!key.startsWith(path)) {
-          continue
-        }
-
-        const content = Buffer.from(value, 'base64').toString('utf-8')
-
-        items[key] = {
-          checksum: hash(content),
-          content_type: filePathToContentType(key),
-          size: content.length
-        }
-      }
-
-      respondWith(res, 200, JSON.stringify(items), {
-        'Access-Control-Allow-Origin': '*',
-        'Cache-Control': 'public, max-age=2592000, immutable', // a month
-        'Content-Type': 'application/json; charset=utf-8'
-      })
-    }
-
     const entryPoint = validExt(path)
       ? getEntryPoint(fileMap, path)
       : path
 
-    console.log('entryPoint: ' + entryPoint)
-
     if (!entryPoint) {
-      return respondWith(res, 404, 'FILE NOT FOUND', {
+      return respondWith(res, 404, 'ENTRY POINT NOT FOUND', {
         'Cache-Control': 's-max-age=60, max-age=0'
       })
     }
@@ -153,7 +120,7 @@ app.setNotFoundHandler(async (req, res) => {
       ...(typeHeader && { 'X-TypeScript-Types': 'https://deno.re/' + user + '/' + repo + '@' + tag + typeHeader })
     })
   } catch (err) {
-    console.log(err)
+    console.error(err)
 
     respondWith(res, 500, 'SOMETHING WENT WRONG', {
       'Cache-Control': 's-max-age=60, max-age=0'
