@@ -34,7 +34,7 @@ app.setNotFoundHandler(async (req, res) => {
     const url = req.url
 
     if (
-      /^\/([a-zA-Z0-9\-]+)\/([a-zA-Z0-9._\-]+)(@[a-zA-Z0-9.*]+)?(\/|((\/([a-zA-Z0-9._\-]+))+\.(js|json|mjs|ts)))?(\/)?$/.test(url) === false
+      /^\/([a-zA-Z0-9\-]+)\/([a-zA-Z0-9._\-]+)(@[a-zA-Z0-9.*]+)?(\/([a-zA-Z0-9._\-]+))*$/.test(url) === false
     ) {
       return respondWith(res, 404, 'BAD URL', {
         'Cache-Control': 's-max-age=60, max-age=0'
@@ -74,7 +74,7 @@ app.setNotFoundHandler(async (req, res) => {
     let path = '/' + url.split('/').slice(3).join('/')
     const previousEtag = req.headers['if-none-match']
 
-    const entryPoint = validExt(path)
+    const entryPoint = !validExt(path)
       ? getEntryPoint(fileMap, path)
       : path
 
