@@ -23,7 +23,7 @@
   "devDependencies": {
     "@astrojs/check": "^0.5.10",
     "@types/fs-extra": "^11.0.4",
-    "@types/node": "^20.11.30",
+    "@types/node": "^20.12.2",
     "@types/semver": "^7.5.8",
     "@types/tar": "^6.1.11",
     "astro": "^4.5.13",
