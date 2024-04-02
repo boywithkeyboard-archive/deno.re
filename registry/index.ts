@@ -71,8 +71,37 @@ app.setNotFoundHandler(async (req, res) => {
       })
     }
 
-    const path = '/' + url.split('/').slice(3).join('/')
+    let path = '/' + url.split('/').slice(3).join('/')
     const previousEtag = req.headers['if-none-match']
+
+    // list child items
+    if (path.endsWith('/')) {
+      const items: Record<string, {
+        checksum: string
+        content_type: string
+        size: number
+      }> = {}
+
+      for (const [key, value] of Object.entries(fileMap)) {
+        if (!key.startsWith(path)) {
+          continue
+        }
+
+        const content = Buffer.from(value, 'base64').toString('utf-8')
+
+        items[key] = {
+          checksum: hash(content),
+          content_type: filePathToContentType(key),
+          size: content.length
+        }
+      }
+
+      respondWith(res, 200, JSON.stringify(items, null, 2), {
+        'Access-Control-Allow-Origin': '*',
+        'Cache-Control': 'public, max-age=2592000, immutable', // a month
+        'Content-Type': 'application/json; charset=utf-8'
+      })
+    }
 
     const entryPoint = validExt(path)
       ? getEntryPoint(fileMap, path)
