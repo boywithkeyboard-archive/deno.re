@@ -7,10 +7,11 @@ import slash from 'slash'
 import * as tar from 'tar'
 import { compress, decompress } from './gzip'
 import { s3 } from './s3'
+import { validExt } from './valid_ext'
 
 const sha1Pattern = /^[0-9a-f]{40}$/
 
-type FileMap = Record<string, string>
+export type FileMap = Record<string, string>
 
 export async function createFileMap(user: string, repo: string, tag: string): Promise<FileMap | null> {
   const res = await fetch(
@@ -48,10 +49,7 @@ export async function createFileMap(user: string, repo: string, tag: string): Pr
         return true
       }
   
-      const arr = path.split('.')
-      const ext = arr[arr.length - 1]
-  
-      return ['js', 'mjs', 'jsx', 'ts', 'mts', 'tsx', 'json', 'wasm'].includes(ext)
+      return validExt(path)
     },
     onentry(entry) {
       if (entry.type === 'File') {
