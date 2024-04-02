@@ -56,7 +56,7 @@ app.setNotFoundHandler(async (req, res) => {
         })
       }
 
-      arr[2] = arr[2].split('@')[0] + '@' + latestTag
+      arr[2] = arr[2] + '@' + latestTag
 
       return respondWith(res, 307, null, {
         Location: 'https://deno.re' + arr.join('/')
@@ -74,8 +74,10 @@ app.setNotFoundHandler(async (req, res) => {
     let path = '/' + url.split('/').slice(3).join('/')
     const previousEtag = req.headers['if-none-match']
 
-    // list child items
-    if (path !== '/' && path.endsWith('/')) {
+    console.log('path: ' + path)
+
+    // list files
+    if (/.+\/$/.test(path)) {
       const items: Record<string, {
         checksum: string
         content_type: string
@@ -106,6 +108,8 @@ app.setNotFoundHandler(async (req, res) => {
     const entryPoint = validExt(path)
       ? getEntryPoint(fileMap, path)
       : path
+
+    console.log('entryPoint: ' + entryPoint)
 
     if (!entryPoint) {
       return respondWith(res, 404, 'FILE NOT FOUND', {
