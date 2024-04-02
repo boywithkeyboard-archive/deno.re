@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { rimraf } from 'rimraf'
 import slash from 'slash'
-import tar from 'tar'
+import * as tar from 'tar'
 import { compress, decompress } from './gzip'
 import { s3 } from './s3'
 
