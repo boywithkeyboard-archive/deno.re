@@ -37,7 +37,7 @@ app.setNotFoundHandler(async (req, res) => {
       /^\/([a-zA-Z0-9\-]+)\/([a-zA-Z0-9._\-]+)(@[a-zA-Z0-9.*]+)?(\/|((\/([a-zA-Z0-9._\-]+))+\.(js|json|mjs|ts)))?(\/)?$/.test(url) === false
     ) {
       return respondWith(res, 404, 'BAD URL', {
-        'Cache-Control': 'max-age=0'
+        'Cache-Control': 's-max-age=60, max-age=0'
       })
     }
 
@@ -52,7 +52,7 @@ app.setNotFoundHandler(async (req, res) => {
 
       if (!latestTag) {
         return respondWith(res, 404, 'REPOSITORY NOT FOUND', {
-          'Cache-Control': 'max-age=0'
+          'Cache-Control': 's-max-age=60, max-age=0'
         })
       }
 
@@ -67,7 +67,7 @@ app.setNotFoundHandler(async (req, res) => {
 
     if (!fileMap) {
       return respondWith(res, 500, 'GITHUB IS UNAVAILABLE', {
-        'Cache-Control': 'max-age=0'
+        'Cache-Control': 's-max-age=60, max-age=0'
       })
     }
 
@@ -96,7 +96,7 @@ app.setNotFoundHandler(async (req, res) => {
         }
       }
 
-      respondWith(res, 200, JSON.stringify(items, null, 2), {
+      respondWith(res, 200, JSON.stringify(items), {
         'Access-Control-Allow-Origin': '*',
         'Cache-Control': 'public, max-age=2592000, immutable', // a month
         'Content-Type': 'application/json; charset=utf-8'
@@ -109,7 +109,7 @@ app.setNotFoundHandler(async (req, res) => {
 
     if (!entryPoint) {
       return respondWith(res, 404, 'FILE NOT FOUND', {
-        'Cache-Control': 'max-age=0'
+        'Cache-Control': 's-max-age=60, max-age=0'
       })
     }
 
@@ -117,7 +117,7 @@ app.setNotFoundHandler(async (req, res) => {
 
     if (!content) {
       return respondWith(res, 404, 'FILE NOT FOUND', {
-        'Cache-Control': 'max-age=0'
+        'Cache-Control': 's-max-age=60, max-age=0'
       })
     }
 
@@ -152,7 +152,7 @@ app.setNotFoundHandler(async (req, res) => {
     console.log(err)
 
     respondWith(res, 500, 'SOMETHING WENT WRONG', {
-      'Cache-Control': 'max-age=0'
+      'Cache-Control': 's-max-age=60, max-age=0'
     })
   }
 })
