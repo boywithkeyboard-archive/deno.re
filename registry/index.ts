@@ -98,11 +98,7 @@ app.setNotFoundHandler(async (req, res) => {
     let content
     let minified = false
 
-    if (entryPoint) {
-      content = fileMap[entryPoint]
-    } else if (/.*\.min\.(js|mjs|jsx)$/.test(path)) {
-      entryPoint = path
-
+    if (/.*\.min\.(js|mjs|jsx)$/.test(path)) {
       const arr = path.split('.')
       const ext = arr.pop()
 
@@ -116,6 +112,7 @@ app.setNotFoundHandler(async (req, res) => {
       arr.push(ext)
 
       let originalContent = fileMap[arr.join('.')]
+      entryPoint = arr.join('.')
 
       if (!originalContent) {
         return respondWith(res, 404, 'ENTRY POINT NOT FOUND', {
@@ -127,6 +124,8 @@ app.setNotFoundHandler(async (req, res) => {
       originalContent = Buffer.from(originalContent, 'base64').toString('utf-8')
 
       content = await minify(originalContent)
+    } else if (entryPoint) {
+      content = fileMap[entryPoint]
     } else {
       return respondWith(res, 404, 'ENTRY POINT NOT FOUND', {
         'Cache-Control': 's-max-age=60, max-age=0'
