@@ -1,13 +1,14 @@
 import fastify, { type FastifyReply } from 'fastify'
+import favicon from '../build/favicon.svg'
+import html from '../build/index.html'
 import { filePathToContentType } from './content_type'
 import { getFileMap } from './file_map'
 import { getEntryPoint } from './get_entry_point'
 import { getLatestTag } from './get_latest_tag'
 import { hash } from './hash'
+import { minify } from './minify'
 import { resolveTypeHeader } from './resolve_type_header'
 import { validExt } from './valid_ext'
-import html from '../build/index.html'
-import favicon from '../build/favicon.svg'
 
 const app = fastify()
 
@@ -90,17 +91,47 @@ app.setNotFoundHandler(async (req, res) => {
     let path = '/' + url.split('/').slice(3).join('/')
     const previousEtag = req.headers['if-none-match']
 
-    const entryPoint = !validExt(path)
+    let entryPoint = !validExt(path)
       ? getEntryPoint(fileMap, path)
       : path
 
-    if (!entryPoint) {
+    let content
+    let minified = false
+
+    if (entryPoint) {
+      content = fileMap[entryPoint]
+    } else if (/.*\.min\.(js|mjs|jsx)$/.test(path)) {
+      entryPoint = path
+
+      const arr = path.split('.')
+      const ext = arr.pop()
+
+      if (!ext) {
+        return respondWith(res, 404, 'ENTRY POINT NOT FOUND', {
+          'Cache-Control': 's-max-age=60, max-age=0'
+        })
+      }
+
+      arr.pop()
+      arr.push(ext)
+
+      let originalContent = fileMap[arr.join('.')]
+
+      if (!originalContent) {
+        return respondWith(res, 404, 'ENTRY POINT NOT FOUND', {
+          'Cache-Control': 's-max-age=60, max-age=0'
+        })
+      }
+
+      minified = true
+      originalContent = Buffer.from(originalContent, 'base64').toString('utf-8')
+
+      content = await minify(originalContent)
+    } else {
       return respondWith(res, 404, 'ENTRY POINT NOT FOUND', {
         'Cache-Control': 's-max-age=60, max-age=0'
       })
     }
-
-    let content = fileMap[entryPoint]
 
     if (!content) {
       return respondWith(res, 404, 'FILE NOT FOUND', {
@@ -110,11 +141,13 @@ app.setNotFoundHandler(async (req, res) => {
 
     let contentType = filePathToContentType(entryPoint)
   
-    if (validExt(path)) {
-      content = Buffer.from(content, 'base64').toString('utf-8')
-    } else {
-      contentType = filePathToContentType('.ts')
-      content = `export * from 'https://deno.re/${user}/${repo}@${tag}${entryPoint}'`
+    if (!minified) {
+      if (validExt(path)) {
+        content = Buffer.from(content, 'base64').toString('utf-8')
+      } else {
+        contentType = filePathToContentType('.ts')
+        content = `export * from 'https://deno.re/${user}/${repo}@${tag}${entryPoint}'`
+      }
     }
 
     const checksum = `"${hash(content)}"`
