@@ -48,14 +48,18 @@ app.setNotFoundHandler(async (req, res) => {
       return respondWith(res, 404, 'BAD METHOD')
     }
 
-    const url = req.url
+    let url = req.url
 
     if (
-      /^\/([a-zA-Z0-9\-]+)\/([a-zA-Z0-9._\-]+)(@[a-zA-Z0-9.*]+)?(\/([a-zA-Z0-9._\-]+))*$/.test(url) === false
+      /^\/(std|(([a-zA-Z0-9\-]+)\/([a-zA-Z0-9._\-]+)))(@[a-zA-Z0-9.*]+)?(\/([a-zA-Z0-9._\-]+))*$/.test(url) === false
     ) {
       return respondWith(res, 404, 'BAD URL', {
         'Cache-Control': 's-max-age=60, max-age=0'
       })
+    }
+
+    if (url.startsWith('/std')) {
+      url = url.replace('/std', '/denoland/deno_std')
     }
 
     const arr = url.split('/')
