@@ -34,7 +34,7 @@ test('latest tag', async () => {
 
   await res.body.cancel()
 
-  assert.strictEqual(res.headers.get('location', `https://deno.re/esbuild/deno-esbuild@${latestTag}/mod.js`), expected)
+  assert.strictEqual(res.headers.get('location'), `https://deno.re/esbuild/deno-esbuild@${latestTag}/mod.js`)
 })
 
 test('specific commit', async () => {
