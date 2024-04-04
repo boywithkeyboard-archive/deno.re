@@ -1,12 +1,9 @@
 import { ensureDir } from 'fs-extra'
-import { mkdtemp, readFile, writeFile } from 'node:fs/promises'
-import { tmpdir } from 'node:os'
-import { join } from 'node:path'
-import { rimraf } from 'rimraf'
-import slash from 'slash'
-import * as tar from 'tar'
+import { readFile, writeFile } from 'node:fs/promises'
+import { deadline } from './deadline'
 import { compress, decompress } from './gzip'
 import { s3 } from './s3'
+import { unzip } from './unzip'
 import { validExt } from './valid_ext'
 
 const sha1Pattern = /^[0-9a-f]{40}$/
@@ -17,7 +14,7 @@ export async function createFileMap(user: string, repo: string, tag: string): Pr
   const res = await fetch(
     'https://github.com/' + user + '/' + repo + (
       sha1Pattern.test(tag) ? '/archive/' : '/archive/refs/tags/'
-    ) + tag + '.tar.gz'
+    ) + tag + '.zip'
   )
 
   if (!res.ok) {
@@ -26,45 +23,23 @@ export async function createFileMap(user: string, repo: string, tag: string): Pr
     return null
   }
 
-  const buf = await res.arrayBuffer()
+  const buf = await deadline(res.arrayBuffer(), 2500)
 
   if (buf.byteLength > 10_000_000) { // 10 MB
     return null
   }
 
-  let tmpDirPath = await mkdtemp(join(tmpdir(), crypto.randomUUID()))
-
-  tmpDirPath = slash(tmpDirPath)
-
-  await writeFile(tmpDirPath + '/archive.tar.gz', Buffer.from(buf))
-
   const map: FileMap = {}
 
-  await tar.x({
-    C: tmpDirPath,
-    file: tmpDirPath + '/archive.tar.gz',
-    filter(path, stat) {
-      // @ts-expect-error
-      if (stat.type !== 'File') {
-        return true
-      }
-  
-      return validExt(path)
-    },
-    onentry(entry) {
-      if (entry.type === 'File') {
-        const path = entry.path.substring(entry.path.indexOf('/'))
-
-        const content = entry.read()
-
-        if (content && content.byteLength > 0) {
-          map[path] = content.toString('base64')
-        }
-      }
+  const files = await deadline(unzip(buf), 2500)
+ 
+  for (const key in files) {
+    if (!validExt(key) || files[key].byteLength < 1) {
+      continue
     }
-  })
 
-  await rimraf(tmpDirPath)
+    map[key.substring(key.indexOf('/'))] = Buffer.from(files[key]).toString('base64')
+  }
 
   return map
 }
