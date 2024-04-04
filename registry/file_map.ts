@@ -82,7 +82,7 @@ export async function getFileMap(user: string, repo: string, tag: string): Promi
     return JSON.parse(str)
   } catch (err) {
     // check if file map is in remote cache
-    const res = await fetch('https://cache.deno.re/' + mapName)
+    const res = await fetch(`https://${process.env.R2_HOSTNAME}/${mapName}`)
 
     if (res.ok) {
       const buf = await decompress(
@@ -106,7 +106,7 @@ export async function getFileMap(user: string, repo: string, tag: string): Promi
     await writeFile('./cache/' + mapName, JSON.stringify(map))
 
     await s3.putObject({
-      Bucket: 'deno',
+      Bucket: process.env.S3_BUCKET,
       Key: mapName,
       Body: await compress(JSON.stringify(map))
     })
