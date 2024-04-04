@@ -62,7 +62,7 @@ test('omit entry point', async (t) => {
   await t.test('ts', async () => {
     const res = await fetch('http://localhost:3000/std@0.220.0/crypto')
 
-    assert.strictEqual(await res.text(), `export * from 'https://deno.re/std@0.220.0/crypto/mod.ts'`)
+    assert.strictEqual(await res.text(), `export * from 'https://deno.re/denoland/deno_std@0.220.0/crypto/mod.ts'`)
     assert.strictEqual(res.headers.get('content-type'), 'text/typescript; charset=utf-8')
   })
 })
