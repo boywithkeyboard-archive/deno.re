@@ -53,9 +53,8 @@ test('specific tag', async () => {
 
 test('omit entry point', async () => {
   const actual = await fetchStr('http://localhost:3000/esbuild/deno-esbuild@v0.20.0')
-  const expected = await fetchStr('https://raw.githubusercontent.com/esbuild/deno-esbuild/v0.20.0/mod.js')
 
-  assert.strictEqual(actual, expected)
+  assert.strictEqual(actual, `export * from 'https://deno.re/esbuild/deno-esbuild@v0.20.0/mod.js'`)
 })
 
 test('type header', async () => {
