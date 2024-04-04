@@ -147,8 +147,11 @@ app.setNotFoundHandler(async (req, res) => {
     if (!minified) {
       if (validExt(path)) {
         content = Buffer.from(content, 'base64').toString('utf-8')
-      } else {
+      } else if (entryPoint.endsWith('ts')) {
         contentType = filePathToContentType('.ts')
+        content = `export * from 'https://deno.re/${user}/${repo}@${tag}${entryPoint}'`
+      } else {
+        contentType = filePathToContentType('.js')
         content = `export * from 'https://deno.re/${user}/${repo}@${tag}${entryPoint}'`
       }
     }

@@ -51,10 +51,20 @@ test('specific tag', async () => {
   assert.strictEqual(actual, expected)
 })
 
-test('omit entry point', async () => {
-  const actual = await fetchStr('http://localhost:3000/esbuild/deno-esbuild@v0.20.0')
+test('omit entry point', async (t) => {
+  await t.test('js', async () => {
+    const res = await fetch('http://localhost:3000/esbuild/deno-esbuild@v0.20.0')
 
-  assert.strictEqual(actual, `export * from 'https://deno.re/esbuild/deno-esbuild@v0.20.0/mod.js'`)
+    assert.strictEqual(await res.text(), `export * from 'https://deno.re/esbuild/deno-esbuild@v0.20.0/mod.js'`)
+    assert.strictEqual(res.headers.get('content-type'), 'text/javascript; charset=utf-8')
+  })
+
+  await t.test('ts', async () => {
+    const res = await fetch('http://localhost:3000/std@0.220.0/crypto')
+
+    assert.strictEqual(await res.text(), `export * from 'https://deno.re/std@0.220.0/crypto/mod.ts'`)
+    assert.strictEqual(res.headers.get('content-type'), 'text/typescript; charset=utf-8')
+  })
 })
 
 test('type header', async () => {
