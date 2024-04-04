@@ -39,7 +39,7 @@ async function respondWith(res: FastifyReply, statusCode: number, body: string |
   }
 
   res.code(statusCode)
-  res.send(body)
+  await res.send(body)
 
   if (options.resolve) {
     await options.resolve
