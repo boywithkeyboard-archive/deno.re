@@ -47,12 +47,13 @@ export async function createFileMap(user: string, repo: string, tag: string): Pr
 export async function getFileMap(user: string, repo: string, tag: string): Promise<FileMap | null> {
   await ensureDir('./cache')
 
-  const mapName = Buffer.from(user + '_' + repo + '_' + tag).toString('hex')
+  const mapName = user + '/' + repo + '/' + tag
+  const encodedMapName = Buffer.from(mapName).toString('hex')
   let str
 
   try {
     // check if file map is in local cache
-    str = await readFile('./cache/' + mapName, 'utf-8')
+    str = await readFile('./cache/' + encodedMapName, 'utf-8')
 
     return JSON.parse(str)
   } catch (err) {
@@ -64,7 +65,7 @@ export async function getFileMap(user: string, repo: string, tag: string): Promi
         await res.arrayBuffer()
       )
 
-      await writeFile('./cache/' + mapName, buf)
+      await writeFile('./cache/' + encodedMapName, buf)
 
       return JSON.parse(buf.toString('utf-8'))
     } else {
@@ -78,7 +79,7 @@ export async function getFileMap(user: string, repo: string, tag: string): Promi
       return null
     }
 
-    await writeFile('./cache/' + mapName, JSON.stringify(map))
+    await writeFile('./cache/' + encodedMapName, JSON.stringify(map))
 
     await s3.putObject({
       Bucket: process.env.S3_BUCKET,
