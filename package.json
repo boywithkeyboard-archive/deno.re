@@ -3,7 +3,10 @@
   "scripts": {
     "dev": "astro dev",
     "start": "node build/index.cjs",
-    "build": "astro build && esbuild registry/index.ts --bundle --format=cjs --loader:.html=text --loader:.svg=text --external:esbuild --platform=node --outfile=build/index.cjs"
+    "build": "astro build && esbuild registry/index.ts --bundle --format=cjs --loader:.html=text --loader:.svg=text --external:esbuild --platform=node --outfile=build/index.cjs",
+    "pretest": "node build/index.cjs &",
+    "test": "node --test",
+    "posttest": "kill $(lsof -t -i:3000)"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.540.0",
