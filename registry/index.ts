@@ -28,24 +28,28 @@ app.get('/favicon.svg', (_, res) => {
 
 app.get('/ready', () => 'READY')
 
-function respondWith(res: FastifyReply, statusCode: number, body: string | Buffer | null, headers?: Record<string, string>) {
-  if (headers) {
-    for (const [key, value] of Object.entries(headers)) {
+async function respondWith(res: FastifyReply, statusCode: number, body: string | Buffer | null, options: {
+  headers?: Record<string, string>
+  resolve?: Promise<unknown>
+} = {}) {
+  if (options.headers) {
+    for (const [key, value] of Object.entries(options.headers)) {
       res.header(key, value)
     }
   }
 
   res.code(statusCode)
-  
-  if (body !== null) {
-    res.send(body)
+  res.send(body)
+
+  if (options.resolve) {
+    await options.resolve
   }
 }
 
 app.setNotFoundHandler(async (req, res) => {
   try {
     if (req.method.toUpperCase() !== 'GET') {
-      return respondWith(res, 404, 'BAD METHOD')
+      return await respondWith(res, 404, 'BAD METHOD')
     }
 
     let url = req.url
@@ -53,8 +57,10 @@ app.setNotFoundHandler(async (req, res) => {
     if (
       /^\/(std|(([a-zA-Z0-9\-]+)\/([a-zA-Z0-9._\-]+)))(@[a-zA-Z0-9.*]+)?(\/([a-zA-Z0-9._\-]+))*$/.test(url) === false
     ) {
-      return respondWith(res, 404, 'BAD URL', {
-        'Cache-Control': 's-max-age=60, max-age=0'
+      return await respondWith(res, 404, 'BAD URL', {
+        headers: {
+          'Cache-Control': 's-max-age=60, max-age=0'
+        }
       })
     }
 
@@ -72,23 +78,29 @@ app.setNotFoundHandler(async (req, res) => {
       const latestTag = await getLatestTag(user, repo)
 
       if (!latestTag) {
-        return respondWith(res, 404, 'REPOSITORY NOT FOUND', {
-          'Cache-Control': 's-max-age=60, max-age=0'
+        return await respondWith(res, 404, 'REPOSITORY NOT FOUND', {
+          headers: {
+            'Cache-Control': 's-max-age=60, max-age=0'
+          }
         })
       }
 
       arr[2] = arr[2] + '@' + latestTag
 
-      return respondWith(res, 307, null, {
-        Location: 'https://deno.re' + arr.join('/')
+      return await respondWith(res, 307, null, {
+        headers: {
+          Location: 'https://deno.re' + arr.join('/')
+        }
       })
     }
 
-    const fileMap = await getFileMap(user, repo, tag)
+    const { fileMap, resolve } = await getFileMap(user, repo, tag)
 
     if (!fileMap) {
-      return respondWith(res, 500, 'REPOSITORY OR TAG NOT FOUND', {
-        'Cache-Control': 's-max-age=60, max-age=0'
+      return await respondWith(res, 500, 'REPOSITORY OR TAG NOT FOUND', {
+        headers: {
+          'Cache-Control': 's-max-age=60, max-age=0'
+        }
       })
     }
 
@@ -107,8 +119,11 @@ app.setNotFoundHandler(async (req, res) => {
       const ext = arr.pop()
 
       if (!ext) {
-        return respondWith(res, 404, 'ENTRY POINT NOT FOUND', {
-          'Cache-Control': 's-max-age=60, max-age=0'
+        return await respondWith(res, 404, 'ENTRY POINT NOT FOUND', {
+          headers: {
+            'Cache-Control': 's-max-age=60, max-age=0'
+          },
+          resolve
         })
       }
 
@@ -119,8 +134,11 @@ app.setNotFoundHandler(async (req, res) => {
       entryPoint = arr.join('.')
 
       if (!originalContent) {
-        return respondWith(res, 404, 'ENTRY POINT NOT FOUND', {
-          'Cache-Control': 's-max-age=60, max-age=0'
+        return await respondWith(res, 404, 'ENTRY POINT NOT FOUND', {
+          headers: {
+            'Cache-Control': 's-max-age=60, max-age=0'
+          },
+          resolve
         })
       }
 
@@ -131,14 +149,20 @@ app.setNotFoundHandler(async (req, res) => {
     } else if (entryPoint) {
       content = fileMap[entryPoint]
     } else {
-      return respondWith(res, 404, 'ENTRY POINT NOT FOUND', {
-        'Cache-Control': 's-max-age=60, max-age=0'
+      return await respondWith(res, 404, 'ENTRY POINT NOT FOUND', {
+        headers: {
+          'Cache-Control': 's-max-age=60, max-age=0'
+        },
+        resolve
       })
     }
 
     if (!content) {
-      return respondWith(res, 404, 'FILE NOT FOUND', {
-        'Cache-Control': 's-max-age=60, max-age=0'
+      return await respondWith(res, 404, 'FILE NOT FOUND', {
+        headers: {
+          'Cache-Control': 's-max-age=60, max-age=0'
+        },
+        resolve
       })
     }
 
@@ -160,27 +184,35 @@ app.setNotFoundHandler(async (req, res) => {
     const typeHeader = resolveTypeHeader(fileMap, entryPoint)
 
     if (previousEtag === checksum) {
-      return respondWith(res, 304, null, {
+      return await respondWith(res, 304, null, {
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Cache-Control': 'public, max-age=2592000, immutable', // a month
+          'Content-Type': contentType + '; charset=utf-8',
+          'ETag': checksum,
+          ...(typeHeader && { 'X-TypeScript-Types': 'https://deno.re/' + user + '/' + repo + '@' + tag + typeHeader })
+        },
+        resolve
+      })
+    }
+
+    await respondWith(res, 200, content, {
+      headers: {
         'Access-Control-Allow-Origin': '*',
         'Cache-Control': 'public, max-age=2592000, immutable', // a month
         'Content-Type': contentType + '; charset=utf-8',
         'ETag': checksum,
         ...(typeHeader && { 'X-TypeScript-Types': 'https://deno.re/' + user + '/' + repo + '@' + tag + typeHeader })
-      })
-    }
-
-    respondWith(res, 200, content, {
-      'Access-Control-Allow-Origin': '*',
-      'Cache-Control': 'public, max-age=2592000, immutable', // a month
-      'Content-Type': contentType + '; charset=utf-8',
-      'ETag': checksum,
-      ...(typeHeader && { 'X-TypeScript-Types': 'https://deno.re/' + user + '/' + repo + '@' + tag + typeHeader })
+      },
+      resolve
     })
   } catch (err) {
     console.error(err)
 
-    respondWith(res, 500, 'SOMETHING WENT WRONG', {
-      'Cache-Control': 's-max-age=60, max-age=0'
+    await respondWith(res, 500, 'SOMETHING WENT WRONG', {
+      headers: {
+        'Cache-Control': 's-max-age=60, max-age=0'
+      }
     })
   }
 })

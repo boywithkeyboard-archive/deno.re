@@ -44,7 +44,10 @@ export async function createFileMap(user: string, repo: string, tag: string): Pr
   return map
 }
 
-export async function getFileMap(user: string, repo: string, tag: string): Promise<FileMap | null> {
+export async function getFileMap(user: string, repo: string, tag: string): Promise<{
+  fileMap: FileMap | null
+  resolve?: Promise<unknown>
+}> {
   await ensureDir('./cache')
 
   const mapName = user + '/' + repo + '/' + tag
@@ -55,7 +58,9 @@ export async function getFileMap(user: string, repo: string, tag: string): Promi
     // check if file map is in local cache
     str = await readFile('./cache/' + encodedMapName, 'utf-8')
 
-    return JSON.parse(str)
+    return {
+      fileMap: JSON.parse(str)
+    }
   } catch (err) {
     // check if file map is in remote cache
     const res = await fetch(`https://${process.env.R2_HOSTNAME}/${mapName}`)
@@ -67,26 +72,32 @@ export async function getFileMap(user: string, repo: string, tag: string): Promi
 
       await writeFile('./cache/' + encodedMapName, buf)
 
-      return JSON.parse(buf.toString('utf-8'))
+      return {
+        fileMap: JSON.parse(buf.toString('utf-8'))
+      }
     } else {
       await res.body?.cancel()
     }
 
     // generate file map
-    const map = await createFileMap(user, repo, tag)
+    const fileMap = await createFileMap(user, repo, tag)
 
-    if (!map) {
-      return null
+    if (!fileMap) {
+      return {
+        fileMap: null
+      }
     }
 
-    await writeFile('./cache/' + encodedMapName, JSON.stringify(map))
-
-    await s3.putObject({
-      Bucket: process.env.S3_BUCKET,
-      Key: mapName,
-      Body: await compress(JSON.stringify(map))
-    })
-
-    return map
+    return {
+      fileMap,
+      resolve: Promise.all([
+        writeFile('./cache/' + encodedMapName, JSON.stringify(fileMap)),
+        s3.putObject({
+          Bucket: process.env.S3_BUCKET,
+          Key: mapName,
+          Body: await compress(JSON.stringify(fileMap))
+        })
+      ])
+    }
   }
 }
