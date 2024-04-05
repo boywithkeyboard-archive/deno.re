@@ -2,6 +2,9 @@
 import Layout from '../layouts/Layout.astro'
 import Logo from '../components/Logo.astro'
 import Footer from '../components/Footer.astro'
+import DiscordIcon from '../components/DiscordIcon.astro'
+import GitHubIcon from '../components/GitHubIcon.astro'
+import ShareIcon from '../components/ShareIcon.astro'
 ---
 
 <Layout title="The Deno Registry">
@@ -16,11 +19,29 @@ import Footer from '../components/Footer.astro'
 			<p>In contrast to deno.land/x, deno.re is not a stand-alone module registry, but instead leverages existing infrastructure and stores modules permanently.</p>
 
 			<p>You can import specific commits based on their SHA1 checksum, minify files on the fly or omit the entry point and let deno.re automatically find it for you.</p>
+
+			<span>
+				<a href="/github" target="_blank"><GitHubIcon /></a>
+				<a href="/discord"><DiscordIcon /></a>
+				<a href="#" id="share"><ShareIcon /></a>
+			</span>
 		</div>
 
 		<Footer />
 	</div>
 </Layout>
+
+<script>
+  const icon = document.querySelector("#share")!
+
+  icon.addEventListener("click", () => {
+    navigator.share({
+			url: "https://deno.re",
+			title: "The Deno Registry",
+			text: "The immutable, feature-rich module registry for GitHub repositories."
+		})
+  })
+</script>
 
 <style>
 	.page {
@@ -41,6 +62,14 @@ import Footer from '../components/Footer.astro'
 		font-size: 18px;
 		line-height: 1.5;
 		color: var(--textLight);
+	}
+
+	.readme span {
+		display: flex;
+		align-items: center;
+		justify-content: flex-start;
+		width: 100%;
+		gap: 10px;
 	}
 
 	.readme pre {
