@@ -1,5 +1,7 @@
 ## Usage
 
+**Want to suggest a new feature or chat with us?** [Join our Discord](https://deno.re/discord)
+
 ### Minify Files
 
 When you request a `*.min.js`, `*.min.mjs` or `*.min.jsx` file and the release does not contain such a file, deno.re will automatically minify the file.
