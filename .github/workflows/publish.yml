@@ -1,0 +1,43 @@
+name: publish
+
+on:
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    env:
+      PROJECT_ID: ${{ secrets.CLOUD_RUN_PROJECT_ID }}
+      REGION: ${{ secrets.CLOUD_RUN_REGION }}
+      SERVICE_NAME: ${{ secrets.CLOUD_RUN_SERVICE_NAME }}
+    
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.CLOUD_RUN_SERVICE_ACCOUNT }}
+      
+      - name: Setup gcloud
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Authorize Docker
+        run: gcloud auth configure-docker
+
+      - name: Build Image
+        run: |
+          docker build . --tag gcr.io/$PROJECT_ID/$PROJECT_ID:$GITHUB_SHA
+
+      - name: Push Image to Registry
+        run: |
+          docker push gcr.io/$PROJECT_ID/$PROJECT_ID:$GITHUB_SHA
+
+      - name: Deploy API
+        run: |
+          gcloud run deploy $PROJECT_NAME \
+          --region $REGION \
+          --image gcr.io/$PROJECT_ID/$SERVICE_NAME:$GITHUB_SHA \
+          --platform "managed" \
+          --quiet
