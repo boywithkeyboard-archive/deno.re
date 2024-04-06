@@ -89,7 +89,7 @@ app.setNotFoundHandler(async (req, res) => {
 
       return await respondWith(res, 307, null, {
         headers: {
-          Location: 'https://deno.re' + arr.join('/')
+          Location: process.env.BASE_URL + arr.join('/')
         }
       })
     }
@@ -173,10 +173,10 @@ app.setNotFoundHandler(async (req, res) => {
         content = Buffer.from(content, 'base64').toString('utf-8')
       } else if (entryPoint.endsWith('ts')) {
         contentType = filePathToContentType('.ts')
-        content = `export * from 'https://deno.re/${user}/${repo}@${tag}${entryPoint}'`
+        content = `export * from '${process.env.BASE_URL}/${user}/${repo}@${tag}${entryPoint}'`
       } else {
         contentType = filePathToContentType('.js')
-        content = `export * from 'https://deno.re/${user}/${repo}@${tag}${entryPoint}'`
+        content = `export * from '${process.env.BASE_URL}/${user}/${repo}@${tag}${entryPoint}'`
       }
     }
 
@@ -190,7 +190,7 @@ app.setNotFoundHandler(async (req, res) => {
           'Cache-Control': 'public, max-age=2592000, immutable', // a month
           'Content-Type': contentType + '; charset=utf-8',
           'ETag': checksum,
-          ...(typeHeader && { 'X-TypeScript-Types': 'https://deno.re/' + user + '/' + repo + '@' + tag + typeHeader })
+          ...(typeHeader && { 'X-TypeScript-Types': process.env.BASE_URL + '/' + user + '/' + repo + '@' + tag + typeHeader })
         },
         resolve
       })
@@ -202,7 +202,7 @@ app.setNotFoundHandler(async (req, res) => {
         'Cache-Control': 'public, max-age=2592000, immutable', // a month
         'Content-Type': contentType + '; charset=utf-8',
         'ETag': checksum,
-        ...(typeHeader && { 'X-TypeScript-Types': 'https://deno.re/' + user + '/' + repo + '@' + tag + typeHeader })
+        ...(typeHeader && { 'X-TypeScript-Types': process.env.BASE_URL + '/' + user + '/' + repo + '@' + tag + typeHeader })
       },
       resolve
     })
