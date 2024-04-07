@@ -36,8 +36,8 @@ jobs:
 
       - name: Deploy API
         run: |
-          gcloud run deploy $PROJECT_NAME \
+          gcloud run deploy $SERVICE_NAME \
           --region $REGION \
-          --image gcr.io/$PROJECT_ID/$SERVICE_NAME:$GITHUB_SHA \
+          --image gcr.io/$PROJECT_ID/$PROJECT_ID:$GITHUB_SHA \
           --platform "managed" \
           --quiet
