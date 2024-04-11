@@ -63,7 +63,7 @@ export async function getFileMap(user: string, repo: string, tag: string): Promi
     }
   } catch (err) {
     // check if file map is in remote cache
-    const res = await fetch(`https://${process.env.R2_HOSTNAME}/${mapName}`)
+    const res = await fetch(`https://${process.env.S3_HOSTNAME}/${mapName}`)
 
     if (res.ok) {
       const buf = await decompress(
