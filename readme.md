@@ -39,6 +39,24 @@ import { crypto } from 'https://deno.re/denoland/deno_std@0.221.0/crypto/mod.ts'
 
 The order of priority for file extensions can be found [here](https://github.com/boywithkeyboard/deno.re/blob/main/registry/get_entry_point.ts#L6).
 
+## Self-Hosting
+
+There are two approaches you can take to deploy your custom instance of deno.re.
+
+You can either
+
+1. use our [Docker image](https://github.com/boywithkeyboard/deno.re/pkgs/container/deno.re)
+2. or clone the repository and run `npm ci && npm run build` to build the server
+
+Either way, you need to set the below environment variables in order for the server to work:
+
+- `BASE_URL` *(The base URL for your custom instance, e.g. `https://foo.com`)*
+- `S3_HOSTNAME` *(The public hostname of your bucket, e.g. `bar.foo.com`)*
+- `S3_ACCESS_KEY_ID`
+- `S3_SECRET_ACCESS_KEY`
+- `S3_BUCKET` *(The name of your S3 bucket, e.g. `foo`)*
+- `S3_ENDPOINT` *(e.g. `https://<id>.eu.r2.cloudflarestorage.com` for Cloudflare R2)*
+
 ## Terms of Use
 
 deno.re is designed to be a permanent caching layer for Deno modules stored on GitHub. If you decide to abuse our service in whatever way, we reserve the right to blacklist your GitHub account.
