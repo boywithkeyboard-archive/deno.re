@@ -10,7 +10,7 @@
     "www": "astro dev"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.554.0",
+    "@aws-sdk/client-s3": "^3.556.0",
     "@sinclair/typebox": "^0.32.20",
     "fastify": "^4.26.2",
     "fflate": "^0.8.2",
