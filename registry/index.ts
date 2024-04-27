@@ -1,3 +1,4 @@
+import fastifyCors from '@fastify/cors'
 import fastify, { type FastifyReply } from 'fastify'
 import favicon from '../build/favicon.svg'
 import html from '../build/index.html'
@@ -11,6 +12,12 @@ import { resolveTypeHeader } from './resolve_type_header'
 import { validExt } from './valid_ext'
 
 const app = fastify()
+
+app.register(fastifyCors, {
+  maxAge: 1800,
+  methods: 'GET',
+  origin: '*',
+})
 
 app.get('/', (_, res) => {
   res.header('Cache-Control', 's-max-age=1800, max-age=300')
@@ -186,7 +193,6 @@ app.setNotFoundHandler(async (req, res) => {
     if (previousEtag === checksum) {
       return await respondWith(res, 304, null, {
         headers: {
-          'Access-Control-Allow-Origin': '*',
           'Cache-Control': 'public, max-age=2592000, immutable', // a month
           'Content-Type': contentType + '; charset=utf-8',
           'ETag': checksum,
@@ -198,7 +204,6 @@ app.setNotFoundHandler(async (req, res) => {
 
     await respondWith(res, 200, content, {
       headers: {
-        'Access-Control-Allow-Origin': '*',
         'Cache-Control': 'public, max-age=2592000, immutable', // a month
         'Content-Type': contentType + '; charset=utf-8',
         'ETag': checksum,
@@ -228,4 +233,5 @@ const start = async () => {
     process.exit(1)
   }
 }
+
 start()

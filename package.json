@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.564.0",
+    "@fastify/cors": "^9.0.1",
     "@sinclair/typebox": "^0.32.26",
     "fastify": "^4.26.2",
     "fflate": "^0.8.2",
