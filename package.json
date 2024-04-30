@@ -16,7 +16,7 @@
     "fastify": "^4.26.2",
     "fflate": "^0.8.2",
     "fs-extra": "^11.2.0",
-    "lru-cache": "^10.2.1",
+    "lru-cache": "^10.2.2",
     "octokit": "^3.2.0",
     "rimraf": "^5.0.5",
     "semver": "^7.6.0",
