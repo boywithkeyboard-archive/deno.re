@@ -1,5 +1,6 @@
 {
   "name": "deno.re",
+  "version": "1.2.0",
   "scripts": {
     "dev": "npm run build && node --env-file .env build/index.cjs",
     "start": "node build/index.cjs",
