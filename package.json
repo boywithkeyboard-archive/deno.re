@@ -4,7 +4,7 @@
   "scripts": {
     "dev": "npm run build && node --env-file .env build/index.cjs",
     "start": "node build/index.cjs",
-    "build": "astro build && esbuild registry/index.ts --bundle --format=cjs --loader:.html=text --loader:.svg=text --external:esbuild --platform=node --outfile=build/index.cjs",
+    "build": "astro build && esbuild registry/index.ts --bundle --format=cjs --loader:.html=text --loader:.svg=text --external:esbuild --external:octokit --platform=node --outfile=build/index.cjs",
     "pretest": "node build/index.cjs &",
     "test": "node --test",
     "posttest": "kill $(lsof -t -i:3000)",
