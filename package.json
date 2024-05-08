@@ -18,7 +18,7 @@
     "fflate": "^0.8.2",
     "fs-extra": "^11.2.0",
     "lru-cache": "^10.2.2",
-    "octokit": "^4.0.1",
+    "octokit": "^4.0.2",
     "rimraf": "^5.0.5",
     "semver": "^7.6.1",
     "slash": "^5.1.0"
