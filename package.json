@@ -2,10 +2,10 @@
   "name": "deno.re",
   "version": "1.2.0",
   "scripts": {
-    "dev": "npm run build && node --env-file .env build/index.cjs",
-    "start": "node build/index.cjs",
-    "build": "astro build && esbuild registry/index.ts --bundle --format=cjs --loader:.html=text --loader:.svg=text --external:esbuild --external:octokit --platform=node --outfile=build/index.cjs",
-    "pretest": "node build/index.cjs &",
+    "dev": "npm run build && node --env-file .env build/index.js",
+    "start": "node build/index.js",
+    "build": "astro build && esbuild registry/index.ts --bundle --format=esm --loader:.html=text --loader:.svg=text --packages=external --platform=node --outfile=build/index.js",
+    "pretest": "node build/index.js &",
     "test": "node --test",
     "posttest": "kill $(lsof -t -i:3000)",
     "www": "astro dev"
