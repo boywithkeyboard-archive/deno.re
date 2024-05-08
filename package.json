@@ -14,7 +14,7 @@
     "@aws-sdk/client-s3": "^3.569.0",
     "@fastify/cors": "^9.0.1",
     "@sinclair/typebox": "^0.32.28",
-    "fastify": "^4.26.2",
+    "fastify": "^4.27.0",
     "fflate": "^0.8.2",
     "fs-extra": "^11.2.0",
     "lru-cache": "^10.2.2",
