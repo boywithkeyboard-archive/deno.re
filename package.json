@@ -24,7 +24,7 @@
     "slash": "^5.1.0"
   },
   "devDependencies": {
-    "@astrojs/check": "^0.5.10",
+    "@astrojs/check": "^0.6.0",
     "@types/fs-extra": "^11.0.4",
     "@types/node": "^20.12.10",
     "@types/semver": "^7.5.8",
