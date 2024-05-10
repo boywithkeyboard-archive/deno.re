@@ -20,7 +20,7 @@
     "lru-cache": "^10.2.2",
     "octokit": "^4.0.2",
     "rimraf": "^5.0.5",
-    "semver": "^7.6.1",
+    "semver": "^7.6.2",
     "slash": "^5.1.0"
   },
   "devDependencies": {
