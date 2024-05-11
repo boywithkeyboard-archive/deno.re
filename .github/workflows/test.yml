@@ -31,4 +31,4 @@ jobs:
           S3_BUCKET: ${{ secrets.TEST_S3_BUCKET }}
           S3_ENDPOINT: ${{ secrets.S3_ENDPOINT }}
           S3_SECRET_ACCESS_KEY: ${{ secrets.TEST_S3_SECRET_ACCESS_KEY }}
-        run: node build/index.js
+        run: npm test
