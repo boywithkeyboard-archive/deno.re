@@ -29,7 +29,7 @@
     "@types/node": "^20.12.11",
     "@types/semver": "^7.5.8",
     "@types/tar": "^6.1.13",
-    "astro": "^4.8.2",
+    "astro": "^4.8.3",
     "esbuild": "^0.21.1",
     "typescript": "^5.4.5"
   },
